@@ -1,0 +1,48 @@
+def shared_library_branch = scm.branches[0].name
+if (shared_library_branch .contains("*/")) {
+    shared_library_branch  = shared_library_branch.split("\\*/")[1]
+   }
+def util_lib="jenkins-shared@${shared_library_branch}"
+echo "${util_lib}"
+
+library "${util_lib}"
+
+def StarterFunc(){
+  def docker
+  def docker_name = utils.getDockerName()
+  def build_args = ""
+  sh "echo ${build_args}"
+  docker = docker.build("${docker_name}", "${build_args} ." )
+  docker.push()
+
+  def docker_run_args = "--network host  --dns 8.8.8.8 --device=/dev/kfd --device /dev/dri:/dev/dri:rw --volume /dev/dri:/dev/dri:rw --group-add video "
+
+  def cmd = params.cmd
+  sh "srun --no-kill -p ${slurm_partition} -N 1 -l bash -c 'docker run ${docker_run_args} ${docker_name} ${cmd}'"
+}
+
+def VerifyArgs()
+{
+}
+
+pipeline {
+  agent { node { label 'mysql' } }
+  parameters {
+    string(name: 'cmd', defaultValue: 'ls', description: '')
+    choice(name: 'loglevel', choices: ['WARN', 'ERROR', 'INFO'], description: 'Log level')
+  }
+  stages {
+    stage("Check params")
+    {
+      steps {
+        VerifyArgs()   
+      }
+    }
+    stage('fin Solvers') 
+    {
+      steps{
+        StarterFunc()
+      }
+    }
+  }
+}
