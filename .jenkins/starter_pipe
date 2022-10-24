@@ -9,7 +9,6 @@ library "${util_lib}"
 
 def StarterFunc(){
   def hello_docker
-  def docker_name = "default"
   def build_args = ""
   sh "echo ${build_args}"
   hello_docker = docker.build("${docker_name}", "${build_args} ." )
@@ -29,10 +28,12 @@ pipeline {
   agent { node { label 'mysql' } }
   environment {
       slurm_partition = "${params.slurm_partition}"
+      docker_name = "${params.docker_name}"
   }
   parameters {
     string(name: 'cmd', defaultValue: 'ls', description: '')
     string(name: 'slurm_partition', defaultValue: 'gpu-node', description: 'Name of the slurm partition to run jobs on')    
+    string(name: 'docker_name', defaultValue: 'default', description: 'name of the docker')    
     choice(name: 'loglevel', choices: ['WARN', 'ERROR', 'INFO'], description: 'Log level')
   }
   stages {
