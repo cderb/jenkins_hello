@@ -9,7 +9,7 @@ library "${util_lib}"
 
 def StarterFunc(){
   def docker
-  def docker_name = utils.getDockerName()
+  def docker_name = "default"
   def build_args = ""
   sh "echo ${build_args}"
   docker = docker.build("${docker_name}", "${build_args} ." )
