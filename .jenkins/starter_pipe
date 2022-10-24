@@ -8,12 +8,12 @@ echo "${util_lib}"
 library "${util_lib}"
 
 def StarterFunc(){
-  def docker
+  def hello_docker
   def docker_name = "default"
   def build_args = ""
   sh "echo ${build_args}"
-  docker = docker.build("${docker_name}", "${build_args} ." )
-  docker.push()
+  hello_docker = docker.build("${docker_name}", "${build_args} ." )
+  hello_docker.push()
 
   def docker_run_args = "--network host  --dns 8.8.8.8 --device=/dev/kfd --device /dev/dri:/dev/dri:rw --volume /dev/dri:/dev/dri:rw --group-add video "
 
